@@ -20,8 +20,8 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    // Auto-detect repo name (Assumes repo name matches app name)
-                    APP_NAME = "${env.JOB_NAME}".tokenize('/')[-1]
+                    // Explicitly set APP_NAME to the correct repository name
+                    APP_NAME = "wordpress"
 
                     // Simplified dynamic image tags
                     WORDPRESS_IMAGE_TAG = "${ECR_URL}/${ECR_REPOSITORY}:wordpress-${ENVIRONMENT}-${env.BUILD_NUMBER}"
@@ -29,11 +29,7 @@ pipeline {
                 }
             }
         }
-        stage('Checkout Code') {
-            steps {
-                git credentialsId: 'github-org-credentials', url: "https://github.com/Opsmiths-Technologies/${APP_NAME}.git", branch: 'main'
-            }
-        }
+        // Remove the redundant 'Checkout Code' stage since Declarative SCM already handles it
         stage('Build Docker Images') {
             steps {
                 sh """
@@ -70,36 +66,40 @@ pipeline {
                     def wordpressTag = WORDPRESS_IMAGE_TAG.split(':')[-1]
                     def nginxTag = NGINX_IMAGE_TAG.split(':')[-1]
 
-                    sh """
-                    git clone ${GITOPS_REPO}
-                    cd opst-deploy-wordpress-app
+                    // Use SSH credentials for the GitOps repository
+                    withCredentials([sshUserPrivateKey(credentialsId: 'github-org-credentials', keyFileVariable: 'SSH_KEY')]) {
+                        sh """
+                        export GIT_SSH_COMMAND="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no"
+                        git clone ${GITOPS_REPO}
+                        cd opst-deploy-wordpress-app
 
-                    # Dynamic path based on the app name and environment
-                    APP_KUSTOMIZE_PATH="kubernetes/apps/${APP_NAME}/${ENVIRONMENT}"
+                        # Dynamic path based on the app name and environment
+                        APP_KUSTOMIZE_PATH="kubernetes/apps/${APP_NAME}/${ENVIRONMENT}"
 
-                    # Ensure the deployment file exists
-                    if [ ! -f "\${APP_KUSTOMIZE_PATH}/kustomization.yaml" ]; then
-                        echo "Error: kustomization.yaml not found in \${APP_KUSTOMIZE_PATH}"
-                        exit 1
-                    fi
+                        # Ensure the deployment file exists
+                        if [ ! -f "\${APP_KUSTOMIZE_PATH}/kustomization.yaml" ]; then
+                            echo "Error: kustomization.yaml not found in \${APP_KUSTOMIZE_PATH}"
+                            exit 1
+                        fi
 
-                    echo "Updating kustomization.yaml with new image tags..."
+                        echo "Updating kustomization.yaml with new image tags..."
 
-                    # Update the WordPress newTag
-                    sed -i '/name: wordpress/{n;n;s|newTag:.*|newTag: ${wordpressTag}|}' "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
+                        # Update the WordPress newTag
+                        sed -i '/name: wordpress/{n;n;s|newTag:.*|newTag: ${wordpressTag}|}' "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
 
-                    # Update the Nginx newTag
-                    sed -i '/name: nginx/{n;n;s|newTag:.*|newTag: ${nginxTag}|}' "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
+                        # Update the Nginx newTag
+                        sed -i '/name: nginx/{n;n;s|newTag:.*|newTag: ${nginxTag}|}' "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
 
-                    # Debug: Print the updated file
-                    cat "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
+                        # Debug: Print the updated file
+                        cat "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
 
-                    git config user.email "jenkins@opsmiths.com"
-                    git config user.name "Jenkins CI"
-                    git add "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
-                    git commit -m "Updated ${APP_NAME} (${ENVIRONMENT}) with WordPress=${wordpressTag} & Nginx=${nginxTag}" || echo "Nothing to commit"
-                    git push origin ${GITOPS_BRANCH}
-                    """
+                        git config user.email "jenkins@opsmiths.com"
+                        git config user.name "Jenkins CI"
+                        git add "\${APP_KUSTOMIZE_PATH}/kustomization.yaml"
+                        git commit -m "Updated ${APP_NAME} (${ENVIRONMENT}) with WordPress=${wordpressTag} & Nginx=${nginxTag}" || echo "Nothing to commit"
+                        git push origin ${GITOPS_BRANCH}
+                        """
+                    }
                 }
             }
         }
