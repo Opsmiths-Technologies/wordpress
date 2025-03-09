@@ -34,7 +34,7 @@ ARG SMTP_MAILER_VER=
 
 # ImageMagick version
 #https://pkgs.alpinelinux.org/package/edge/community/x86/imagemagick 
-ARG IMAGEMAGICK_VER=7.1.1.32-r0
+ARG IMAGEMAGICK_VER=7.1.1.44-r0
 
 LABEL base-tag=$BASE_IMAGE_TAG
 
