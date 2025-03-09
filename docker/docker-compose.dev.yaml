@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  database:
+    image: mysql
+    container_name: ${APP_NAME}-database
+    networks:
+      - dmz-wordpress
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+  wordpress:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: ${APP_NAME}-wordpress
+    networks:
+      - dmz-wordpress
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+    depends_on:
+      - database
+    volumes:
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
+    restart: unless-stopped
+
+  webserver:
+    build:
+      context: ./
+      dockerfile: nginx/Dockerfile
+    container_name: ${APP_NAME}-nginx
+    networks:
+      - dmz-wordpress
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - wordpress
+    user: "www-data"
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  wordpress:
+
+networks:
+  dmz-wordpress:
+    name: wp-sites-networks
+    driver: bridge

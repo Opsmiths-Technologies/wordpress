@@ -1,0 +1,172 @@
+ARG BASE_IMAGE_TAG=6.4.3-php8.3-fpm-alpine
+FROM wordpress:$BASE_IMAGE_TAG
+ARG BASE_IMAGE_TAG
+
+# Set the directory
+
+ARG WP_DIR=/usr/src/wordpress
+ARG WP_PLUGINS_DIR=/wp-content/plugins
+ARG WP_THEMES_DIR=/wp-content/themes
+
+# Plugin versions
+# https://pl.wordpress.org/plugins/all-in-one-wp-migration/
+ARG ALL_IN_ONE_WP_MIGRATION_VER=7.88
+# https://wordpress.org/plugins/disable-comments/
+ARG DISABLE_COMMENTS_VER=2.4.6
+# https://pl.wordpress.org/plugins/wordfence/
+ARG WORDFENCE_VER=8.0.2
+# https://pl.wordpress.org/plugins/wps-hide-login/
+ARG WPS_HIDE_LOGIN_VER=1.9.17.1
+# https://wordpress.org/plugins/w3-total-cache/
+ARG W3_TOTAL_CACHE_VER=2.8.2
+# https://wordpress.org/plugins/all-in-one-seo-pack/
+ARG ALL_IN_ONE_SEO_PACK_VER=4.7.7.2
+# https://wordpress.org/plugins/remove-xmlrpc-pingback-ping/
+ARG DISABLE_XML_RPC_PINGBACK_VER=1.6
+# https://pl.wordpress.org/plugins/security-ninja/
+ARG SECURITY_NINJA_VER=5.222
+
+# these plugins do not have a version (the latest is taken at build time)
+#https://fr.wordpress.org/plugins/disable-json-api/
+ARG DISABLE_REST_API_VER=
+#https://fr.wordpress.org/plugins/smtp-mailer/advanced/
+ARG SMTP_MAILER_VER=
+
+# ImageMagick version
+#https://pkgs.alpinelinux.org/package/edge/community/x86/imagemagick 
+ARG IMAGEMAGICK_VER=7.1.1.43-r0
+
+LABEL base-tag=$BASE_IMAGE_TAG
+
+USER 0
+
+# Install required libraries and dependencies
+RUN apk add --no-cache \
+    pango \
+    librsvg \
+    tzdata \
+    apache2-utils \
+    jq \
+    curl \
+    xz \
+    tar \
+    file \
+    pkgconf \
+    autoconf \
+    imagemagick-dev \
+    libxml2-dev \
+    glib-dev \
+    gdk-pixbuf-dev \
+    harfbuzz-dev \
+    sdl2-dev \
+    build-base \
+    build-base \
+    gcc \
+    libc-dev \
+    shadow \
+    wget
+
+# Install ImageMagick from Alpine package repository
+RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community imagemagick=$IMAGEMAGICK_VER
+
+# # Enhance Security and Configuration Settings in NGINX, PHP, and ImageMagick
+RUN sed -i '/^<\/policymap>/i \
+    <policy domain="resource" name="temporary-path" value="/data/magick"/> \
+    <policy domain="path" rights="none" pattern="*"/> \
+    <policy domain="delegate" rights="none" pattern="*"/> \
+    <policy domain="filter" rights="none" pattern="*"/> \
+    <policy domain="path" rights="none" pattern="@*"/> \
+    <policy domain="module" rights="read|write" pattern="{GIF,JPEG,PNG,WEBP}"/> \
+    <policy domain="module" rights="none" pattern="*"/> \
+    <policy domain="coder" rights="none" pattern="*"/> \
+    <policy domain="resource" name="shred" value="1"/> \
+    <policy domain="cache" name="memory-map" value="anonymous"/> \
+    <policy domain="resource" name="thread" value="2"/> \
+    <policy domain="resource" name="time" value="120"/> \
+    <policy domain="resource" name="file" value="768"/> \
+    <policy domain="resource" name="memory" value="256MiB"/> \
+    <policy domain="resource" name="map" value="512MiB"/> \
+    <policy domain="resource" name="area" value="16KP"/> \
+    <policy domain="resource" name="disk" value="1GiB"/> \
+    <policy domain="resource" name="list-length" value="32"/> \
+    <policy domain="resource" name="width" value="8KP"/> \
+    <policy domain="resource" name="height" value="8KP"/> \
+    <policy domain="resource" name="throttle" value="2"/> \
+    <policy domain="system" name="max-memory-request" value="256MiB"/> \
+    ' /etc/ImageMagick-7/policy.xml
+
+# Install custom plugins
+RUN mkdir -p /usr/src/wordpress/wp-content/plugins \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/all-in-one-wp-migration.zip https://downloads.wordpress.org/plugin/all-in-one-wp-migration.$ALL_IN_ONE_WP_MIGRATION_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/all-in-one-wp-migration.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/disable-comments.zip https://downloads.wordpress.org/plugin/disable-comments.$DISABLE_COMMENTS_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/disable-comments.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/disable-xml-rpc-pingback.zip https://downloads.wordpress.org/plugin/remove-xmlrpc-pingback-ping.$DISABLE_XML_RPC_PINGBACK_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/disable-xml-rpc-pingback.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/\
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/disable-json-api.zip https://downloads.wordpress.org/plugin/disable-json-api$DISABLE_REST_API_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/disable-json-api.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wordfence.zip https://downloads.wordpress.org/plugin/wordfence.$WORDFENCE_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wordfence.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wps-hide-login.zip https://downloads.wordpress.org/plugin/wps-hide-login.$WPS_HIDE_LOGIN_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wps-hide-login.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/all-in-one-seo-pack.zip https://downloads.wordpress.org/plugin/all-in-one-seo-pack.$ALL_IN_ONE_SEO_PACK_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/all-in-one-seo-pack.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/w3-total-cache.zip https://downloads.wordpress.org/plugin/w3-total-cache.$W3_TOTAL_CACHE_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/w3-total-cache.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/smtp-mailer.zip https://downloads.wordpress.org/plugin/smtp-mailer$SMTP_MAILER_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/smtp-mailer.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/security-ninja.zip https://downloads.wordpress.org/plugin/security-ninja.$SECURITY_NINJA_VER.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/security-ninja.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && rm ${WP_DIR}${WP_PLUGINS_DIR}/*.zip
+
+# Deactivate default themes
+RUN rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentyfour \
+    && rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentythree \
+    && rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentytwo
+
+# Remove default plugins
+RUN rm -rf ${WP_DIR}${WP_PLUGINS_DIR}/akismet \
+    && rm ${WP_DIR}${WP_PLUGINS_DIR}/hello.php
+
+# Copy plugins & themes to the target directory
+RUN cp -r /usr/src/wordpress/ /var/www/html/ 
+
+# Copy the custom.ini file from the host to the container
+COPY docker/php-conf/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Create log directories and set permissions
+RUN mkdir -p /var/log/php && \
+    touch /var/log/php/php-fpm.error.log /var/log/php/php-fpm.slow.log && \
+    chown -R 1001:1001 /var/log/php
+
+# Change ownership of /var/run directory
+RUN mkdir -p /var/run && \
+    touch /var/run/php-fpm.pid && \
+    chown -R 1001:1001 /var/run && \
+    chown 1001:1001 /var/run/php-fpm.pid
+
+# Install dependencies and PHP memcached extension
+RUN apk update && apk add --no-cache \
+    libmemcached-dev \
+    zlib-dev \
+    && pecl install memcached \
+    && docker-php-ext-enable memcached
+
+# Copy PHP-FPM Global Configuration
+COPY docker/php-fpm.conf /usr/local/etc/
+# Copy PHP-FPM configuration file
+COPY docker/www.conf /usr/local/etc/php-fpm.d/
+
+# Set user and ownership
+RUN usermod -u 44444 www-data && groupmod -g 44444 www-data
+
+RUN chmod -R 775 /var/www && \
+    chown -R www-data:www-data /var/www && \
+    chown -R www-data:www-data /var/www/html && \
+    chown -R www-data:www-data /usr/local/etc/php/conf.d/custom.ini /usr/local/etc/php-fpm.d/www.conf /usr/local/etc /run /var /mnt && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    chown www-data:www-data /usr/local/bin/docker-entrypoint.sh
+
+USER www-data
+
+# USER 1001
