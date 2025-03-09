@@ -53,7 +53,7 @@ RUN apk add --no-cache \
     file \
     pkgconf \
     autoconf \
-    imagemagick-dev \
+    # imagemagick-dev \
     libxml2-dev \
     glib-dev \
     gdk-pixbuf-dev \
@@ -67,33 +67,33 @@ RUN apk add --no-cache \
     wget
 
 # Install ImageMagick from Alpine package repository
-RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community imagemagick=$IMAGEMAGICK_VER
+# RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community imagemagick=$IMAGEMAGICK_VER
 
-# # Enhance Security and Configuration Settings in NGINX, PHP, and ImageMagick
-RUN sed -i '/^<\/policymap>/i \
-    <policy domain="resource" name="temporary-path" value="/data/magick"/> \
-    <policy domain="path" rights="none" pattern="*"/> \
-    <policy domain="delegate" rights="none" pattern="*"/> \
-    <policy domain="filter" rights="none" pattern="*"/> \
-    <policy domain="path" rights="none" pattern="@*"/> \
-    <policy domain="module" rights="read|write" pattern="{GIF,JPEG,PNG,WEBP}"/> \
-    <policy domain="module" rights="none" pattern="*"/> \
-    <policy domain="coder" rights="none" pattern="*"/> \
-    <policy domain="resource" name="shred" value="1"/> \
-    <policy domain="cache" name="memory-map" value="anonymous"/> \
-    <policy domain="resource" name="thread" value="2"/> \
-    <policy domain="resource" name="time" value="120"/> \
-    <policy domain="resource" name="file" value="768"/> \
-    <policy domain="resource" name="memory" value="256MiB"/> \
-    <policy domain="resource" name="map" value="512MiB"/> \
-    <policy domain="resource" name="area" value="16KP"/> \
-    <policy domain="resource" name="disk" value="1GiB"/> \
-    <policy domain="resource" name="list-length" value="32"/> \
-    <policy domain="resource" name="width" value="8KP"/> \
-    <policy domain="resource" name="height" value="8KP"/> \
-    <policy domain="resource" name="throttle" value="2"/> \
-    <policy domain="system" name="max-memory-request" value="256MiB"/> \
-    ' /etc/ImageMagick-7/policy.xml
+# # # Enhance Security and Configuration Settings in NGINX, PHP, and ImageMagick
+# RUN sed -i '/^<\/policymap>/i \
+#     <policy domain="resource" name="temporary-path" value="/data/magick"/> \
+#     <policy domain="path" rights="none" pattern="*"/> \
+#     <policy domain="delegate" rights="none" pattern="*"/> \
+#     <policy domain="filter" rights="none" pattern="*"/> \
+#     <policy domain="path" rights="none" pattern="@*"/> \
+#     <policy domain="module" rights="read|write" pattern="{GIF,JPEG,PNG,WEBP}"/> \
+#     <policy domain="module" rights="none" pattern="*"/> \
+#     <policy domain="coder" rights="none" pattern="*"/> \
+#     <policy domain="resource" name="shred" value="1"/> \
+#     <policy domain="cache" name="memory-map" value="anonymous"/> \
+#     <policy domain="resource" name="thread" value="2"/> \
+#     <policy domain="resource" name="time" value="120"/> \
+#     <policy domain="resource" name="file" value="768"/> \
+#     <policy domain="resource" name="memory" value="256MiB"/> \
+#     <policy domain="resource" name="map" value="512MiB"/> \
+#     <policy domain="resource" name="area" value="16KP"/> \
+#     <policy domain="resource" name="disk" value="1GiB"/> \
+#     <policy domain="resource" name="list-length" value="32"/> \
+#     <policy domain="resource" name="width" value="8KP"/> \
+#     <policy domain="resource" name="height" value="8KP"/> \
+#     <policy domain="resource" name="throttle" value="2"/> \
+#     <policy domain="system" name="max-memory-request" value="256MiB"/> \
+#     ' /etc/ImageMagick-7/policy.xml
 
 # Install custom plugins
 RUN mkdir -p /usr/src/wordpress/wp-content/plugins \

@@ -9,8 +9,8 @@ pipeline {
         // Environment parameter (passed manually or from Jenkins UI)
         ENVIRONMENT     = "${params.ENVIRONMENT ?: 'dev'}"
 
-        // GitOps repository where ArgoCD watches changes
-        GITOPS_REPO     = "git@github.com:Opsmiths-Technologies/opst-deploy-wordpress-app.git"
+        // GitOps repository where ArgoCD watches changes (HTTPS)
+        GITOPS_REPO     = "https://github.com/Opsmiths-Technologies/opst-deploy-wordpress-app.git"
         GITOPS_BRANCH   = "main"
     }
     parameters {
@@ -29,7 +29,6 @@ pipeline {
                 }
             }
         }
-        // Remove the redundant 'Checkout Code' stage since Declarative SCM already handles it
         stage('Build Docker Images') {
             steps {
                 sh """
@@ -66,11 +65,10 @@ pipeline {
                     def wordpressTag = WORDPRESS_IMAGE_TAG.split(':')[-1]
                     def nginxTag = NGINX_IMAGE_TAG.split(':')[-1]
 
-                    // Use SSH credentials for the GitOps repository
-                    withCredentials([sshUserPrivateKey(credentialsId: 'github-org-credentials', keyFileVariable: 'SSH_KEY')]) {
+                    // Use username/password credentials for HTTPS
+                    withCredentials([usernamePassword(credentialsId: 'github-org-credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
                         sh """
-                        export GIT_SSH_COMMAND="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no"
-                        git clone ${GITOPS_REPO}
+                        git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Opsmiths-Technologies/opst-deploy-wordpress-app.git
                         cd opst-deploy-wordpress-app
 
                         # Dynamic path based on the app name and environment
