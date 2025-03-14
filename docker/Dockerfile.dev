@@ -10,21 +10,21 @@ ARG WP_THEMES_DIR=/wp-content/themes
 
 # Based Plugin versions
 # https://pl.wordpress.org/plugins/all-in-one-wp-migration/
-ARG ALL_IN_ONE_WP_MIGRATION_VER=7.88
+ARG ALL_IN_ONE_WP_MIGRATION_VER=7.9
 # https://wordpress.org/plugins/disable-comments/
-ARG DISABLE_COMMENTS_VER=2.4.6
+ARG DISABLE_COMMENTS_VER=2.4.7
 # https://pl.wordpress.org/plugins/wordfence/
-ARG WORDFENCE_VER=8.0.2
+ARG WORDFENCE_VER=8.0.3
 # https://pl.wordpress.org/plugins/wps-hide-login/
 ARG WPS_HIDE_LOGIN_VER=1.9.17.1
 # https://wordpress.org/plugins/w3-total-cache/
-ARG W3_TOTAL_CACHE_VER=2.8.2
+ARG W3_TOTAL_CACHE_VER=2.8.6
 # https://wordpress.org/plugins/all-in-one-seo-pack/
-ARG ALL_IN_ONE_SEO_PACK_VER=4.7.7.2
+ARG ALL_IN_ONE_SEO_PACK_VER=4.8.0
 # https://wordpress.org/plugins/remove-xmlrpc-pingback-ping/
 ARG DISABLE_XML_RPC_PINGBACK_VER=1.6
 # https://pl.wordpress.org/plugins/security-ninja/
-ARG SECURITY_NINJA_VER=5.222
+ARG SECURITY_NINJA_VER=5.225
 
 # these plugins do not have a version (the latest is taken at build time)
 #https://fr.wordpress.org/plugins/disable-json-api/
