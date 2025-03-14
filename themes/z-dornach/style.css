@@ -1,0 +1,129 @@
+/*
+Theme Name: Theme Dornach
+Description: Theme enfant de sydney
+Author: Panchart Pascal
+Author URI: https://www.dornach.eu
+Template: sydney
+Version: 0.1.0
+*/
+
+.feedback-positive{
+	border: 1px solid #0fff61;
+    padding: 8px;
+    font-weight: bold;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.feedback-negative{
+	border: 1px solid #ff0f0f;
+    padding: 8px;
+    font-weight: bold;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+/* Tarteaucitron */
+
+.tac_activate{
+	border: 1px solid black;  
+	padding: 16px;
+  }
+  
+  .tac_activate{
+	font-size: 15px !important;
+  }
+  
+  .tac_activate button{
+	margin: 8px;
+	padding: 8px;
+  }
+  
+  div#tarteaucitronRoot.tarteaucitronBeforeVisible:before {  
+	z-index: 1600 !important;  
+  }
+
+  /* END Tarteaucitron */
+
+/* General */
+
+.d-color {
+	color: #4B7FAF;
+}
+
+.d-title-section {
+	margin-bottom: 30px !important;
+}
+
+
+/* ! Footer.php */
+
+.d-footer-part-left {
+	display: inline-block;
+	padding: 0px; 
+	margin: 0px; 
+	margin-bottom: 10px; 
+	font-weight: 700;
+}
+
+/* ! Access Map */
+
+.d-access-comp {
+	font-size: 1.1em;
+	font-weight: 700;
+	color: #4B7FAF;
+	margin-bottom: 10px;
+}
+
+.d-access-icon {
+	width:28px; 
+	vertical-align:middle; 
+	margin-right:20px;
+}
+
+/* ! Contact Form */
+
+input, textarea {
+	width: 100%;
+}
+
+textarea {
+	resize: none;
+}
+
+/* Override des class du theme */
+
+	/* Header par defaut (non flottant) */
+.site-header {
+	/* background-color: rgba(0, 0, 0, 0.2); */
+}
+
+	/* Menu quand on a le header flotant ( fond blanc ) */
+.float-header #mainnav ul li a {
+	color: #4B7FAF;
+}
+
+	/* Sous menu quand on a le header flotant ( fond blanc ) */
+.float-header #mainnav .sub-menu li a {
+	color: white;
+	background: #4B7FAF;
+}
+
+.float-header #mainnav .sub-menu li a:hover {
+	background: rgba(76, 128, 176, 0.74);
+}
+
+
+
+.btn-menu {
+    color: #4B7FAF !important;
+}
+
+a.go-top:hover {
+    background-color:rgba(76, 128, 176, 0.74);
+}
+
+a.go-top, a.go-top.show {
+    padding:5px;
+    border-radius:10px !important;
+} 

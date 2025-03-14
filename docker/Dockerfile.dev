@@ -8,7 +8,7 @@ ARG WP_DIR=/usr/src/wordpress
 ARG WP_PLUGINS_DIR=/wp-content/plugins
 ARG WP_THEMES_DIR=/wp-content/themes
 
-# Plugin versions
+# Based Plugin versions
 # https://pl.wordpress.org/plugins/all-in-one-wp-migration/
 ARG ALL_IN_ONE_WP_MIGRATION_VER=7.88
 # https://wordpress.org/plugins/disable-comments/
@@ -32,11 +32,50 @@ ARG DISABLE_REST_API_VER=
 #https://fr.wordpress.org/plugins/smtp-mailer/advanced/
 ARG SMTP_MAILER_VER=
 
+# APP Plugins versions
+# https://fr.wordpress.org/plugins/classic-editor/
+ARG CLASSIC_EDITOR_VER=1.6.7
+# https://fr.wordpress.org/plugins/elementor/
+ARG ELEMENTOR_VER=3.26.4
+#https://fr.wordpress.org/plugins/forminator/
+ARG FORMINATOR_VER=1.38.1
+# https://fr.wordpress.org/plugins/lemmony-companion/
+ARG LEMMONY_COMPANION_VER=1.2
+# https://fr.wordpress.org/plugins/modal-block/
+ARG MODAL_BLOCK_VER=2.1
+# https://fr.wordpress.org/plugins/mousewheel-smooth-scroll/
+ARG MOUSEWHEEL_SMOOTH_SCROLL_VER=6.7.1
+# https://fr.wordpress.org/plugins/page-scroll-to-id/
+ARG PAGE_SCROLL_TO_ID_VER=1.7.9
+# https://fr.wordpress.org/plugins/php-compatibility-checker/
+ARG PHP_COMPATIBILITY_CHECKER_VER=1.6.3
+# https://fr.wordpress.org/plugins/capability-manager-enhanced/
+ARG PUBLISHPRESS_CAPABILITIES_VER=2.18.0
+# https://fr.wordpress.org/plugins/siteorigin-panels/
+ARG PAGE_BUILDER_SITEORIGIN_VER=2.31.0
+ARG STANFORD_REVERSE_PROXY_VER=1.1
+# https://fr.wordpress.org/plugins/wordpress-importer/
+ARG WORDPRESS_IMPORTER_VER=0.8.3
+# https://fr.wordpress.org/plugins/insert-headers-and-footers/
+ARG WPCODE_LITE_VER=2.2.5
+# https://fr.wordpress.org/plugins/wpfront-scroll-top/
+ARG WPFRONT_SCROLL_TOP_VER=2.2
+# https://fr.wordpress.org/plugins/wordpress-seo/
+ARG YOAST_SEO_VER=23.0
+
+
 # ImageMagick version
 #https://pkgs.alpinelinux.org/package/edge/community/x86/imagemagick 
 ARG IMAGEMAGICK_VER=7.1.1.44-r0
 
 LABEL base-tag=$BASE_IMAGE_TAG
+
+# Themes versions
+ARG SYDNEY_THEME_VER=2.50
+
+# Copy custom themes by Dornach from the host to the container
+COPY themes/ /usr/src/wordpress/wp-content/themes/
+
 
 USER 0
 
@@ -117,13 +156,53 @@ RUN mkdir -p /usr/src/wordpress/wp-content/plugins \
     && unzip ${WP_DIR}${WP_PLUGINS_DIR}/smtp-mailer.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
     && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/security-ninja.zip https://downloads.wordpress.org/plugin/security-ninja.$SECURITY_NINJA_VER.zip \
     && unzip ${WP_DIR}${WP_PLUGINS_DIR}/security-ninja.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
-    && rm ${WP_DIR}${WP_PLUGINS_DIR}/*.zip
+    
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/classic-editor.zip https://downloads.wordpress.org/plugin/classic-editor.${CLASSIC_EDITOR_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/classic-editor.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/elementor.zip https://downloads.wordpress.org/plugin/elementor.${ELEMENTOR_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/elementor.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/forminator.zip https://downloads.wordpress.org/plugin/forminator.${FORMINATOR_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/forminator.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/lemmony-companion.zip https://downloads.wordpress.org/plugin/lemmony-companion.${LEMMONY_COMPANION_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/lemmony-companion.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/modal-block.zip https://downloads.wordpress.org/plugin/modal-block.${MODAL_BLOCK_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/modal-block.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/mousewheel-smooth-scroll.zip https://downloads.wordpress.org/plugin/mousewheel-smooth-scroll.${MOUSEWHEEL_SMOOTH_SCROLL_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/mousewheel-smooth-scroll.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/page-scroll-to-id.zip https://downloads.wordpress.org/plugin/page-scroll-to-id.${PAGE_SCROLL_TO_ID_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/page-scroll-to-id.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/php-compatibility-checker.zip https://downloads.wordpress.org/plugin/php-compatibility-checker.${PHP_COMPATIBILITY_CHECKER_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/php-compatibility-checker.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/publishpress-capabilities.zip https://downloads.wordpress.org/plugin/capability-manager-enhanced.${PUBLISHPRESS_CAPABILITIES_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/publishpress-capabilities.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/page-builder-siteorigin.zip https://downloads.wordpress.org/plugin/siteorigin-panels.${PAGE_BUILDER_SITEORIGIN_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/page-builder-siteorigin.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wordpress-importer.zip https://downloads.wordpress.org/plugin/wordpress-importer.${WORDPRESS_IMPORTER_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wordpress-importer.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wpcode-lite.zip https://downloads.wordpress.org/plugin/insert-headers-and-footers.${WPCODE_LITE_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wpcode-lite.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wpfront-scroll-top.zip https://downloads.wordpress.org/plugin/wpfront-scroll-top.${WPFRONT_SCROLL_TOP_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wpfront-scroll-top.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \
+    && wget -O ${WP_DIR}${WP_PLUGINS_DIR}/wordpress-seo.zip https://downloads.wordpress.org/plugin/wordpress-seo.${YOAST_SEO_VER}.zip \
+    && unzip ${WP_DIR}${WP_PLUGINS_DIR}/wordpress-seo.zip -d ${WP_DIR}${WP_PLUGINS_DIR}/ \   
+    && rm /usr/src/wordpress/wp-content/plugins/*.zip
 
+# Install custom themes
+RUN wget -O {WP_DIR}${WP_THEMES_DIR}/lemmony.zip https://downloads.wordpress.org/theme/lemmony.${LEMMONY_THEME_VER}.zip \
+    && wget -O {WP_DIR}${WP_THEMES_DIR}/lemmony-agency.zip https://downloads.wordpress.org/theme/lemmony-agency.${LEMMONY_AGENCY_THEME_VER}.zip \
+    && wget -O {WP_DIR}${WP_THEMES_DIR}/sydney.zip https://downloads.wordpress.org/theme/sydney.${SYDNEY_THEME_VER}.zip \
+    && unzip {WP_DIR}${WP_THEMES_DIR}/lemmony.zip -d {WP_DIR}${WP_THEMES_DIR}/ \
+    && unzip {WP_DIR}${WP_THEMES_DIR}/lemmony-agency.zip -d {WP_DIR}${WP_THEMES_DIR}/ \
+    && unzip {WP_DIR}${WP_THEMES_DIR}/sydney.zip -d {WP_DIR}${WP_THEMES_DIR}/ \
+    && rm /usr/src/wordpress/wp-content/themes/*.zip
+
+    
 # Deactivate default themes
 RUN rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentyfour \
     && rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentythree \
     && rm -rf ${WP_DIR}${WP_THEMES_DIR}/twentytwentytwo
 
+    
 # Remove default plugins
 RUN rm -rf ${WP_DIR}${WP_PLUGINS_DIR}/akismet \
     && rm ${WP_DIR}${WP_PLUGINS_DIR}/hello.php

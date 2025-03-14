@@ -1,0 +1,9 @@
+
+
+
+/* Override des class du theme */
+
+	/* Header par defaut (non flottant) */
+.site-header {
+	background-color: rgba(0, 0, 0, 0.2);
+}
